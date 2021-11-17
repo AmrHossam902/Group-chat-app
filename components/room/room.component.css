@@ -1,0 +1,165 @@
+*{
+    box-sizing: border-box;
+    margin: 0px;
+}
+
+body{
+    height: fit-content;
+    position: relative;
+}
+
+header{
+    background-color: rgb(56, 156, 245);
+    padding: 1em;
+}
+
+header>.group-name{
+    position: relative;
+
+    width: fit-content;
+    height: fit-content;
+    margin: auto;
+
+
+    font-family: 'Courier New', Courier, monospace;
+
+    color: white;
+}
+
+aside{
+    position: absolute;
+    z-index: -1;
+    top: 0px;
+
+    width: 35%;
+    height: 100vh;
+
+    background-color: blueviolet;
+
+    padding-top: 3.4em;
+    overflow-y: auto;
+}
+
+aside >.online-users{
+    font-family: 'Courier New', Courier, monospace;
+
+    height: fit-content;
+    margin: auto;
+    padding: 0.5em;
+
+    text-align: center;
+
+    position: sticky;
+    top: 0px;
+    background-color: blueviolet;
+
+}
+
+aside >.user-card{
+    height: fit-content;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+aside >.user-card>.user-name{
+    margin: 0.5em;
+    padding: 0.5em;
+    border-style: solid;
+    border-radius: 0.5em;
+}
+
+
+
+.messaging-field{
+    position: absolute;
+    z-index: -3;
+    top: 0px;
+    right: 0px;
+
+
+    width: 65%;
+    height: 100vh;
+
+    padding-top: 5.5em;
+
+    background-color: coral;
+
+    transform: scaleY(-1);
+
+    overflow-y: auto;
+
+}
+
+
+.message{
+    height: fit-content;
+    padding: 0.3em;
+    padding-bottom: 0.6em;
+
+    transform: scaleY(-1);
+}
+
+.message > .sender-name {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.message > .content {
+    width: fit-content;
+    height: fit-content;
+
+    max-width: 70%;
+
+    padding: 0.3em;
+
+    background-color: aliceblue;
+    border-radius: 0.4em;
+}
+
+
+.message-input-container{
+    width: 65%;
+    height: fit-content;
+
+    display: table;
+
+    position: fixed;
+    z-index: -2;
+    bottom: 0px;
+    right: 0px;
+
+    background-color: cornflowerblue;
+    box-shadow: 0px -5px 5px 3px gray;
+}
+
+.message-input-container>span{
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+.message-input-container>span:first-child{
+    width: 100%;
+    height: fit-content;
+}
+
+
+.message-input-container>span:first-child>.input-area{
+    min-height: 3em;
+
+    margin: 0.5em;
+    padding: 0.5em;
+
+    background-color: aliceblue;
+
+    
+}
+
+.message-input-container>span:last-child>button{
+    width: 5em;
+    height: 3em;
+    margin: 1em;
+}
+
+.message-input-container>span:last-child>button > img{
+    width: 1.5em;
+    vertical-align: middle;
+}
+

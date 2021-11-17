@@ -1,0 +1,11 @@
+.room-credentials > span{
+    display: inline-block;
+}
+
+.room-credentials> span:first-child, .room-credentials> span:last-child{
+    text-align: left;
+}
+
+.room-credentials>h3{
+    text-align: center;
+}

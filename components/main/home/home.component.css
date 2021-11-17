@@ -1,0 +1,24 @@
+
+.home {
+    margin: auto;
+
+    margin-top: 3em;
+
+    width: fit-content;
+    height: fit-content;
+
+}
+
+.home>button {
+    font-size: 2em;
+    width: 5em;
+    height: 5em;
+    font-weight: bold;
+    transition: height 0.2s linear, width 0.2s linear;
+}
+
+
+.home>button:hover {
+    width: 6em;
+    height: 6em;
+}

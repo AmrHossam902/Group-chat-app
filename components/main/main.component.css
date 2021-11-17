@@ -1,0 +1,107 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: rgb(255, 219, 142);
+}
+
+header{
+    margin: 0px;
+    background-color: rgb(56, 156, 245);
+
+    padding: 0.5em;
+    height: fit-content;
+}
+
+header > img{
+    width: 1.5em;
+    height: 1.5em;
+    margin: 1em;
+    vertical-align: middle;
+}
+
+header > label{
+    font-size: 2em;
+    font-family: monospace;
+    vertical-align: middle;
+}
+
+
+
+.wrapper > form{
+    width: fit-content;
+    height: fit-content;
+
+    padding: 1em;
+
+    margin: auto;
+    background-color: white;
+}
+
+
+.wrapper >form > * {
+    display: block;
+    margin: auto;
+    margin-top: 1em;
+}
+
+.wrapper >form > label{
+    width: fit-content;
+    margin: auto;
+}
+
+.wrapper >form > input{
+    border-style: solid;
+}
+
+.wrapper >form > .loader{
+    text-align: center;
+}
+
+.wrapper >form > .loader > .spinner{
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    border-width: 0.45em;
+    border-radius: 1em;
+    border-color: white rgb(56, 156, 245) rgb(56, 156, 245) rgb(56, 156, 245) ;
+    border-style: solid;
+
+    vertical-align: middle;
+    animation: spin 1.5s linear infinite forwards;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg);}
+    25% { transform: rotate(90deg);}
+    50% { transform: rotate(180deg);}
+    75% { transform: rotate(270deg);}
+    100% { transform: rotate(360deg);}
+}
+
+.wrapper >form > .error{
+    color: red;
+    text-align: center;
+}
+
+
+
+a{
+    display: block;
+    margin: auto;
+    width: fit-content;
+}
+
+
+
+
+footer{
+    margin: 0px;
+    background-color: rgb(56, 156, 245);
+    position: absolute;
+    bottom: 0px;
+}
