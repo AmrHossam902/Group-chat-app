@@ -33,85 +33,14 @@ aside{
 
     width: 35%;
     height: 100vh;
-
-    background-color: blueviolet;
-
-    padding-top: 3.4em;
-    overflow-y: auto;
-}
-
-aside >.online-users{
-    font-family: 'Courier New', Courier, monospace;
-
-    height: fit-content;
-    margin: auto;
-    padding: 0.5em;
-
-    text-align: center;
-
-    position: sticky;
-    top: 0px;
-    background-color: blueviolet;
-
-}
-
-aside >.user-card{
-    height: fit-content;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-aside >.user-card>.user-name{
-    margin: 0.5em;
-    padding: 0.5em;
-    border-style: solid;
-    border-radius: 0.5em;
 }
 
 
-
-.messaging-field{
+.messages-container{
     position: absolute;
     z-index: -3;
     top: 0px;
     right: 0px;
-
-
-    width: 65%;
-    height: 100vh;
-
-    padding-top: 5.5em;
-
-    background-color: coral;
-
-    transform: scaleY(-1);
-
-    overflow-y: auto;
-
-}
-
-
-.message{
-    height: fit-content;
-    padding: 0.3em;
-    padding-bottom: 0.6em;
-
-    transform: scaleY(-1);
-}
-
-.message > .sender-name {
-    font-family: 'Courier New', Courier, monospace;
-}
-
-.message > .content {
-    width: fit-content;
-    height: fit-content;
-
-    max-width: 70%;
-
-    padding: 0.3em;
-
-    background-color: aliceblue;
-    border-radius: 0.4em;
 }
 
 
@@ -143,9 +72,14 @@ aside >.user-card>.user-name{
 
 .message-input-container>span:first-child>.input-area{
     min-height: 3em;
+    max-height: 5em;
 
     margin: 0.5em;
     padding: 0.5em;
+
+
+    overflow-y: auto;
+    word-break: break-word;
 
     background-color: aliceblue;
 

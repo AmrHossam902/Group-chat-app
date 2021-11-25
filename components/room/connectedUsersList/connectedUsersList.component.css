@@ -1,0 +1,35 @@
+
+
+aside{
+    background-color: blueviolet;
+    padding-top: 3.4em;
+    overflow-y: auto;
+}
+
+aside >.online-users{
+    font-family: 'Courier New', Courier, monospace;
+
+    height: fit-content;
+    margin: auto;
+    padding: 0.5em;
+
+    text-align: center;
+
+    position: sticky;
+    top: 0px;
+    background-color: blueviolet;
+
+}
+
+aside >.user-card{
+    height: fit-content;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+aside >.user-card>.user-name{
+    margin: 0.5em;
+    padding: 0.5em;
+    border-style: solid;
+    border-radius: 0.5em;
+    text-overflow: ellipsis;
+}

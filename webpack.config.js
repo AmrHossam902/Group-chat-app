@@ -10,7 +10,7 @@ module.exports = {
             import: './components/main/main.component.js'
         },
         room: {
-            import: './components/room/room.component.js'
+            import: './components/room/room.component.js',
         }
     },
     output: {

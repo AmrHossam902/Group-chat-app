@@ -1,0 +1,39 @@
+
+.messages-container{
+
+    padding-top: 5.5em;
+
+    background-color: coral;
+
+    transform: scaleY(-1);
+
+    overflow-y: auto;
+
+}
+
+
+.message{
+    height: fit-content;
+    padding: 0.3em;
+    padding-bottom: 0.6em;
+
+
+    transform: scaleY(-1);
+}
+
+.message > .sender-name {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.message > .content {
+    width: fit-content;
+    height: fit-content;
+
+    max-width: 70%;
+    word-break: break-word;
+
+    padding: 0.3em;
+
+    background-color: aliceblue;
+    border-radius: 0.4em;
+}
