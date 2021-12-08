@@ -49,25 +49,13 @@ export default class CreateRoomComponent extends React.Component{
     showRoomCredentials(id, password){
         const dataHolder = this.credentialsBox.current.children[3];
         dataHolder.children[0].innerHTML = id;
-        dataHolder.children[1].innerHTML = password;
+        dataHolder.children[2].innerHTML = password;
 
         this.credentialsBox.current.style.display = "block";
 
     }
 
     sendCreateRoomRequest(roomNameElement){
-
-        
-        global.fetch = function(url, options){
-            return new Promise(function(resolve, reject){
-                setTimeout(()=>{
-                    resolve({status: 201, json:function(){
-                        return Promise.resolve({id:"aasdfghjkk", password: "1234asasf"});
-                    }})
-                }, 2000);
-            });
-        };
-        
 
         this.showLoader();
         fetch("../rooms/new",{
@@ -76,15 +64,15 @@ export default class CreateRoomComponent extends React.Component{
             headers: {
                 "Content-Type" : "application/json"
             },
-            body: {
-                roomName: roomNameElement.value
-            }
+            body: JSON.stringify({
+                "roomName": roomNameElement.value
+            })
         })
         .then((response)=>{
             this.hideLoader();
             if(response.status == 201){
                 response.json()
-                .then(body=>{ this.showRoomCredentials(body.id, body.password); })
+                .then(body=>{ this.showRoomCredentials(body.roomId, body.roomPassword); })
             }
             else{
                 this.raiseNetworkError();
@@ -156,7 +144,7 @@ export default class CreateRoomComponent extends React.Component{
         //destroy data inside credentials holder
         const dataHolder = this.credentialsBox.current.children[3];
         dataHolder.children[0].innerHTML = "";
-        dataHolder.children[1].innerHTML = "";
+        dataHolder.children[2].innerHTML = "";
 
         this.credentialsBox.current.style.display = "none";
     }

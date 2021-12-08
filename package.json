@@ -6,11 +6,24 @@
   "scripts": {
     "build": "rm -r dist;webpack;cp assets/*.png dist",
     "dev-server": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage"
   },
   "author": "",
   "license": "MIT",
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/test/cssMock.js"
+    }
+  },
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.1",
     "node-forge": "^0.10.0",
     "react": "^17.0.2",
@@ -25,8 +38,10 @@
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
     "@babel/preset-react": "^7.16.0",
+    "babel-jest": "^27.3.1",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.5.1",
+    "esm": "^3.2.25",
     "html-webpack-exclude-assets-plugin": "^0.0.7",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.4.4",

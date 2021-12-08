@@ -30,7 +30,7 @@ export default class JoinRoomComponent extends React.Component{
         this.errorBox.current.style.display = "none";
     }
 
-    raiseEmptyFieldError(roomIdInput, roomPasswordInput){
+    raiseEmptyFieldError(roomIdInput, roomPasswordInput, yourNameInput){
 
         this.emptyFields =0;
 
@@ -45,6 +45,13 @@ export default class JoinRoomComponent extends React.Component{
             roomPasswordInput.focus();
             roomPasswordInput.style.outlineColor = "red";
             roomPasswordInput.style.borderColor = "red";
+            this.emptyFields++;
+        }
+
+        if(yourNameInput.value.length == 0){
+            yourNameInput.focus();
+            yourNameInput.style.outlineColor = "red";
+            yourNameInput.style.borderColor = "red";
             this.emptyFields++;
         }
 
@@ -63,32 +70,33 @@ export default class JoinRoomComponent extends React.Component{
             this.hideErrorBox();
     }
 
-    makeJoinRequest(roomIdValue, roomPasswordValue){
-        
-             
-        global.fetch = function(url, options){
-            return new Promise(function(resolve, reject){
-                setTimeout(()=>{
-                    resolve({status: 200, json:function(){
-                        return Promise.resolve();
-                    }})
-                }, 2000);
-            });
-        };
-        
+    raiseIncorrectCredenialsError(){
+        this.showErrorBox("Incorrect roomId or password !");
+    }
 
-
+    makeJoinRequest(roomIdValue, roomPasswordValue, yourNameValue){
+        
         this.showLoader();
         fetch("../rooms/"+roomIdValue, {
             method: "POST",
-            body: {
-                roomPassword: roomPasswordValue
-            }
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({
+                "roomId": roomIdValue,
+                "roomPassword": roomPasswordValue,
+                "yourName" :yourNameValue
+            })
         })
         .then((response)=>{
             if(response.status == 200){
                 location.pathname = "/rooms/"+roomIdValue;
             }
+            else if(response.status == 404){
+                //raise the error
+                this.raiseIncorrectCredenialsError();
+            }
+            this.hideLoader();
         });
     }
 
@@ -99,14 +107,14 @@ export default class JoinRoomComponent extends React.Component{
         //validate both fields
         const roomIdInput = document.forms["join-room-form"].elements.roomId;
         const roomPasswordInput = document.forms["join-room-form"].elements.roomPassword;
+        const yourNameInput = document.forms["join-room-form"].elements.yourName;
 
-
-        if(roomIdInput.value.length == 0 || roomPasswordInput.value.length == 0){
-            this.raiseEmptyFieldError(roomIdInput, roomPasswordInput);
+        if(roomIdInput.value.length == 0 || roomPasswordInput.value.length == 0 || yourNameInput.value.length == 0 ){
+            this.raiseEmptyFieldError(roomIdInput, roomPasswordInput, yourNameInput);
         }
         else{
             //make api call here
-            this.makeJoinRequest(roomIdInput.value, roomPasswordInput.value);
+            this.makeJoinRequest(roomIdInput.value, roomPasswordInput.value, yourNameInput.value);
         }
     }
 
@@ -122,6 +130,7 @@ export default class JoinRoomComponent extends React.Component{
                     <label>Join Room</label>
                     <input name="roomId" type="text" placeholder="Room Id" onInput={this.removeEmptyFieldError.bind(this)}></input>
                     <input name="roomPassword" type="password" placeholder="Room Password" onInput={this.removeEmptyFieldError.bind(this)}></input>
+                    <input name="yourName" type="text" placeholder="Your Name" onInput={this.removeEmptyFieldError.bind(this)}></input>
                     <button type="submit">Join</button>
                     <div className="loader" ref={this.loader} style={hidden}>
                         <span className="spinner">

@@ -1,0 +1,67 @@
+
+header{
+    background-color: rgb(56, 156, 245);
+    text-align: center;
+    padding: 1.5em;
+    height: fit-content;
+}
+
+header > span{
+    vertical-align: middle;
+    display: inline-block;
+    width: fit-content;
+    height: fit-content;
+}
+
+header > .connection-status{
+    width: 0.5em;
+    height: 0.5em;
+    margin: 0.5em;
+
+    border-radius: 0.25em;
+
+    margin-left: 2em;
+
+    background-color: red;
+}
+
+header .group-name{
+
+    width: fit-content;
+    height: fit-content;
+    margin: auto;
+
+
+    font-family: 'Courier New', Courier, monospace;
+
+    color: white;
+}
+
+header > #show-users-btn{
+
+    display: block;
+
+    width: fit-content;
+    height: fit-content;
+
+    padding: 0.2em;
+
+    position: absolute;
+
+    top: 0.6em;
+    left: 0.6em;
+
+
+    border-style: none;
+    border-radius: 0.5em;
+    transition: background-color 1s;
+
+}
+
+header > #show-users-btn:hover{
+    background-color: gray;
+}
+
+header> #show-users-btn > img{
+    width: 3.5em;
+}

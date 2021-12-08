@@ -1,0 +1,48 @@
+
+
+.message-input{
+    
+    display: table;
+
+    background-color: cornflowerblue;
+    box-shadow: 0px -5px 5px 3px gray;
+}
+
+.message-input>span{
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+.message-input>span:first-child{
+    width: 100%;
+    height: fit-content;
+}
+
+
+.message-input>span:first-child>.input-area{
+    min-height: 3em;
+    max-height: 5em;
+
+    margin: 0.5em;
+    padding: 0.5em;
+
+
+    overflow-y: auto;
+    word-break: break-word;
+
+    background-color: aliceblue;
+
+    
+}
+
+.message-input>span:last-child>button{
+    width: 5em;
+    height: 3em;
+    margin: 1em;
+}
+
+.message-input>span:last-child>button > img{
+    width: 1.5em;
+    vertical-align: middle;
+}
+
