@@ -1,15 +1,16 @@
-import React, { createRef } from "react";
-import { Link } from "react-router-dom";
+import React, { createRef, Fragment } from "react";
+import { Link, withRouter } from "react-router-dom";
 import './joinRoom.component.css';
 
 
-export default class JoinRoomComponent extends React.Component{
+export class JoinRoomComponent extends React.Component{
 
 
-    constructor(){
-        super();
+    constructor(props){
+        super(props);
         this.loader = createRef();
         this.errorBox = createRef();
+        this.roomLink = createRef();
         this.emptyFields = 2;
     }
 
@@ -89,14 +90,14 @@ export default class JoinRoomComponent extends React.Component{
             })
         })
         .then((response)=>{
+            this.hideLoader();
             if(response.status == 200){
-                location.pathname = "/rooms/"+roomIdValue;
+                this.props.history.replace("/rooms/"+roomIdValue);      
             }
             else if(response.status == 404){
                 //raise the error
                 this.raiseIncorrectCredenialsError();
             }
-            this.hideLoader();
         });
     }
 
@@ -125,23 +126,30 @@ export default class JoinRoomComponent extends React.Component{
         }
 
         return(
-            <div className="join-room wrapper">
-                <form id="join-room-form" onSubmit={this.joinRoom.bind(this)}>
-                    <label>Join Room</label>
-                    <input name="roomId" type="text" placeholder="Room Id" onInput={this.removeEmptyFieldError.bind(this)}></input>
-                    <input name="roomPassword" type="password" placeholder="Room Password" onInput={this.removeEmptyFieldError.bind(this)}></input>
-                    <input name="yourName" type="text" placeholder="Your Name" onInput={this.removeEmptyFieldError.bind(this)}></input>
-                    <button type="submit">Join</button>
-                    <div className="loader" ref={this.loader} style={hidden}>
-                        <span className="spinner">
-                        </span>
-                        <label> Joining...</label>
-                    </div>
-                    <label className="error" ref={this.errorBox} style={hidden}></label>
-                </form>
+            <Fragment>
+                <header className="home-header">
+                    <img alt="logo.png" src="./logo.png"/>
+                    <label><b>Connect</b></label>
+                </header>
+                <div className="join-room wrapper">
+                    <form id="join-room-form" onSubmit={this.joinRoom.bind(this)}>
+                        <label>Join Room</label>
+                        <input name="roomId" type="text" placeholder="Room Id" onInput={this.removeEmptyFieldError.bind(this)}></input>
+                        <input name="roomPassword" type="password" placeholder="Room Password" onInput={this.removeEmptyFieldError.bind(this)}></input>
+                        <input name="yourName" type="text" placeholder="Your Name" onInput={this.removeEmptyFieldError.bind(this)}></input>
+                        <button type="submit">Join</button>
+                        <div className="loader" ref={this.loader} style={hidden}>
+                            <span className="spinner">
+                            </span>
+                            <label> Joining...</label>
+                        </div>
+                        <label className="error" ref={this.errorBox} style={hidden}></label>
+                    </form>
 
-                <Link to="/create-room">Create Room?</Link>
-            </div>
+                    <Link to="/create-room">Create Room?</Link>
+                </div>
+                <footer> connect</footer>
+            </Fragment>
         );
     }
 
@@ -150,3 +158,5 @@ export default class JoinRoomComponent extends React.Component{
         document.forms["join-room-form"].roomPassword.value = "";
     }
 }
+
+export default withRouter(JoinRoomComponent);

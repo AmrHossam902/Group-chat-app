@@ -20,7 +20,7 @@ export default class HeaderComponent extends React.Component{
 
     render(){
         return(
-            <header>
+            <header className="msg-page-header">
                 <span>
                     <h3 className="group-name">{this.context.roomName}</h3>
                 </span>

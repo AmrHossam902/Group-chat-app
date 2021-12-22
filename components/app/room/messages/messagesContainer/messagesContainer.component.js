@@ -21,8 +21,8 @@ export default class MessagesContainerComponent extends React.Component{
                     this.state.pendingMsgsContainer.concat(this.state.msgsContainer)
                     .map(msg=>{
                         return (
-                            <div className="message" id={msg.id} key={msg.id}>
-                                <h4 className="sender-name">{msg.sender}</h4>
+                            <div className={"message "+ ((this.context.userId==msg.userId)?"mine":"")} id={msg.id} key={msg.id}>
+                                <h4 className="sender-name">{msg.userName}</h4>
                                 <div className="content">{msg.content}</div>        
                             </div>)
                     })
@@ -57,23 +57,25 @@ export default class MessagesContainerComponent extends React.Component{
         this.orchestrator = this.context.orchestrator;
 
 
-        this.orchestrator.on("USER_NAME", (userName)=>{
-            this.userName = userName;
-        });
-
         this.orchestrator.on("SYNC_MSGS", ()=>{
             const lastMsgId = (this.state.msgsContainer.length) ? 
-                this.state.msgsContainer[0].id : 0
+                this.state.msgsContainer[0].id : -1;
             
             //initiate msg synch
             this.socket.emit("SYNCHRONIZE_MSGS", lastMsgId);
         });
 
         this.orchestrator.on("PENDING_MSG", (msg, tempId)=>{
+            console.log("-------Pendeing msg----------");
+            console.log("   content: "+ msg);
+            console.log("    tempId: " + tempId );
+            console.log("-------Pendeing msg end----------");
+            
             this.setState((state)=>{
                 state.pendingMsgsContainer.unshift({
                     id: tempId,
-                    sender: this.context.userName,
+                    userId: this.context.userId,
+                    userName: this.context.userName,
                     content: msg
                 });
                 return state;
@@ -87,12 +89,16 @@ export default class MessagesContainerComponent extends React.Component{
             const prevMsgs = this.state.msgsContainer.slice(0, msgIndex);
             
             //encrypting msgs
-            prevMsgs.map((msg)=>{
-                msg.content = this.securityClient.encryptMsg(msg.content);
-                return msg;
+            const encryptedPrevMsgs = prevMsgs.map((msg)=>{
+                return {
+                    id: msg.id,
+                    userId: userId,
+                    userName: msg.userName,
+                    content: this.securityClient.encryptMsg(msg.content)
+                };
             });
 
-            this.socket.emit("PREVIOUS_MSGS", prevMsgs, userId);
+            this.socket.emit("PREVIOUS_MSGS", encryptedPrevMsgs, userId);
 
         });
 
@@ -135,18 +141,31 @@ export default class MessagesContainerComponent extends React.Component{
         });
 
         this.socket.on("MSG", (msg)=>{
+
+            console.log("--------- MSG -----------");
+            console.log("   msgId: " + msg.id);
+            console.log("  sender: " + msg.sender);
+            console.log("  EncMsg: " + msg.content);
+            console.log("-------MSG end ----------");
             //insert the message in its place
 
             msg.content = this.securityClient.decryptMsg(msg.content);
+
             this.setState((state)=>{
-                return {
-                    msgsContainer : [msg , ...state.msgsContainer]
-                }
+
+                state.msgsContainer.unshift(msg);
+                return state;
             });
         });
 
         this.socket.on("MSG_ACK", (tempId, realId)=>{
-            const msgIndex = this.state.pendingMsgsContainer.findIndex((pendingMsgObj, index)=>{
+
+            console.log("--------- MSG ACK -----------");
+            console.log("   tempId: " + tempId);
+            console.log("   realId: " + realId);
+            console.log("-------- MSG ACK end ----------");
+
+            const msgIndex = this.state.pendingMsgsContainer.findIndex((pendingMsgObj)=>{
                 if(tempId == pendingMsgObj.id)
                     return true;
                 return false;
@@ -155,7 +174,8 @@ export default class MessagesContainerComponent extends React.Component{
             this.setState((state)=>{
                 state.msgsContainer.unshift({
                     id: realId,
-                    sender: this.context.userName,
+                    userId: this.context.userId,
+                    userName: this.context.userName,
                     content: state.pendingMsgsContainer[msgIndex].content
                 });
 

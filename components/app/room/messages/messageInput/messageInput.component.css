@@ -20,6 +20,9 @@
 
 
 .message-input>span:first-child>.input-area{
+    width: 100%;
+    resize: none;
+    
     min-height: 3em;
     max-height: 5em;
 

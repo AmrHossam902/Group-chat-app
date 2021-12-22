@@ -8,15 +8,6 @@
     transition: opacity 1s;
 }
 
-.hidden {
-    z-index: -10;
-    opacity: 0;
-}
-
-.visible{
-    z-index: -1;
-    opacity: 1;
-}
 
 .connected-list >.title{
     font-family: 'Courier New', Courier, monospace;

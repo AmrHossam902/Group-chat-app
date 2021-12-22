@@ -6,11 +6,8 @@ module.exports = {
 
     mode: "development",
     entry: {
-        home: {
-            import: './components/main/main.component.js'
-        },
-        room: {
-            import: './components/room/room.component.js',
+        app: {
+            import: './components/app/app.component.js'
         }
     },
     output: {
@@ -43,14 +40,8 @@ module.exports = {
         new MiniCssExtractPlugin({"filename":"css/[name].css"}),
         new HtmlWebpackPlugin({
             "publicPath": "/",
-            "filename" : "views/home.html",
-            "chunks" : ["home"],
-            "template" : "./components/template.html"
-        }),
-        new HtmlWebpackPlugin({
-            "publicPath": "../",
-            "filename" : "views/room.html",
-            "chunks" : ["room"],
+            "filename" : "views/app.html",
+            "chunks" : ["app"],
             "template" : "./components/template.html"
         })
     ]

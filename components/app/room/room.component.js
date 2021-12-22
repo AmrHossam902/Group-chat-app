@@ -1,10 +1,8 @@
-import React, { createRef, Fragment } from "react";
-import { render } from "react-dom";
+import React from "react";
 import { io } from "socket.io-client";
-import SecurityClient from "../../utilities/securityClient";
-import Orchestrator from "../../utilities/orchestartor";
 
-
+import SecurityClient from "../../../utilities/securityClient";
+import Orchestrator from "../../../utilities/orchestartor";
 import globalContext from "./globalContext";
 import MessagesComponent from "./messages/messages.component";
 import ConnectedUsersListComponent from "./connectedUsersList/connectedUsersList.component";
@@ -12,33 +10,37 @@ import HeaderComponent from "./header/header.component";
 
 
 import './room.component.css';
+import { withRouter } from "react-router";
 
 
 
-export default class RoomComponent extends React.Component{
+class RoomComponent extends React.Component{
     
-    constructor(){
-        super();
+    constructor(props){
+        super(props);
 
         this.securityClient = new SecurityClient();
         this.socket = io();
         this.isMaster = false;
         this.orchestrator = new Orchestrator();
 
-        this.state = { userName: "", roomName: "loading..."}
+        this.state = { 
+            userName: "",
+            userId: "",
+            roomName: "loading..."
+        }
 
     }
 
     render(){
         return (
-        <Fragment>
-
             <globalContext.Provider value={
                 {
                     socket: this.socket,
                     securityClient: this.securityClient,
                     orchestrator: this.orchestrator,
                     roomName: this.state.roomName,
+                    userId: this.state.userId,
                     userName: this.state.userName
                 }
                 }>
@@ -46,7 +48,6 @@ export default class RoomComponent extends React.Component{
                 <ConnectedUsersListComponent/>
                 <MessagesComponent/>
             </globalContext.Provider>
-        </Fragment>
         );
     }
 
@@ -57,14 +58,21 @@ export default class RoomComponent extends React.Component{
         window.addEventListener("resize", ()=>{
             const withInRange = window.matchMedia("(min-width: 13cm)").matches;
             if(withInRange){
-                document.getElementsByTagName("aside")[0].className = "visible";
+                document.getElementsByTagName("aside")[0].style.zIndex = -1;
+                document.getElementsByTagName("aside")[0].style.opacity =1;
             }
-            else
-            document.getElementsByTagName("aside")[0].className = "hidden";
+            else{
+                document.getElementsByTagName("aside")[0].style.zIndex = -10;
+                document.getElementsByTagName("aside")[0].style.opacity =0;
+            }
         });
 
         this.orchestrator.on("SYNC_CONNECTED_USERS_COMPLETE", ()=>{
             this.orchestrator.emit("SYNC_MSGS");
+        });
+
+        window.addEventListener("popstate", () => {
+            this.props.history.go(1);
         });
     }
 
@@ -77,6 +85,16 @@ export default class RoomComponent extends React.Component{
             this.socket.emit("JOIN_REQUEST",{
                 "publicKey" : this.securityClient.exportPublicKey()
             });
+        });
+
+        this.socket.on("META_DATA", (roomName, userName, userId)=>{
+            this.setState((state)=>{
+                state.roomName = roomName;
+                state.userName = userName;
+                state.userId = userId;
+                return state;
+            });
+
         });
 
         //emitted when getting session key
@@ -104,14 +122,6 @@ export default class RoomComponent extends React.Component{
             this.orchestrator.emit("SYNC_CONNECTED_USERS");
         });
 
-        this.socket.on("META_DATA", (roomName, userName)=>{
-            this.setState((state)=>{
-                state.roomName = roomName;
-                state.userName = userName;
-                return state;
-            });
-
-        });
 
         /**     general events */
 
@@ -128,10 +138,10 @@ export default class RoomComponent extends React.Component{
 
             const sessionKeyData = this.securityClient.exportSessionKey(data.userPublicKey);
             // emit SESSION_KEY
-            this.socket("SESSION_KEY", {
+            this.socket.emit("SESSION_KEY", {
                 encryptedKey : sessionKeyData.encryptedKey,
                 signature : sessionKeyData.signature,
-                recieverSocketId : data.userSocketId
+                recieverId : data.userId
             });
         })
 
@@ -142,4 +152,4 @@ export default class RoomComponent extends React.Component{
     }
 }
 
-render(<RoomComponent/>, document.getElementById("container"));
+export default withRouter(RoomComponent);

@@ -9,7 +9,7 @@ body {
     background-color: rgb(255, 219, 142);
 }
 
-header{
+.home-header{
     margin: 0px;
     background-color: rgb(56, 156, 245);
 
@@ -17,14 +17,14 @@ header{
     height: fit-content;
 }
 
-header > img{
+.home-header > img{
     width: 1.5em;
     height: 1.5em;
     margin: 1em;
     vertical-align: middle;
 }
 
-header > label{
+.home-header > label{
     font-size: 2em;
     font-family: monospace;
     vertical-align: middle;

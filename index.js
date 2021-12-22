@@ -21,6 +21,14 @@ function generateRandomString(){
 
 }
 
+function authenticate(credentials){
+
+    if(rooms[credentials.roomId] && rooms[credentials.roomId].roomPassword == credentials.roomPassword)
+        return true;
+    else
+        return false; 
+}
+
 function createRoom(roomName){
     
     const roomId = generateRandomString();
@@ -42,40 +50,20 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("dist"));
 
-
-app.get(["/", '/create-room', '/join-room'], function(req, res){
-    res.sendFile(__dirname+"/dist/views/home.html", function(err){
-        res.end();
-    });
-});
-
-app.post("/rooms/new", (req, res)=>{
-    const roomObject = createRoom(req.body["roomName"]);
-    res.status(201).json(roomObject);
-});
-
-
- function authenticate(credentials){
-
-    if(rooms[credentials.roomId] && rooms[credentials.roomId].roomPassword == credentials.roomPassword)
-        return true;
-    else
-        return false; 
-}
-
-app.get(['/rooms/:roomId'], function(req, res){
+app.get('/rooms/:roomId', function(req, res){
     
     const credentials = {
         roomId : req.cookies["roomId"],
         roomPassword : req.cookies["roomPassword"]
     }
-    console.log(credentials);
+
 
     const validRequest = authenticate(credentials);
     
     if(validRequest){
         res.status(200);
-        res.sendFile(__dirname+"/dist/views/room.html", function(err){
+        
+        res.sendFile(__dirname+"/dist/views/app.html", function(err){
             res.end();
         });
     }
@@ -87,6 +75,18 @@ app.get(['/rooms/:roomId'], function(req, res){
 });
 
 
+
+app.get("/*", function(req, res){
+    res.sendFile(__dirname+"/dist/views/app.html", function(err){
+        res.end();
+    });
+});
+
+app.post("/rooms/new", (req, res)=>{
+    const roomObject = createRoom(req.body["roomName"]);
+    res.status(201).json(roomObject);
+});
+
 app.post("/rooms/:roomId", (req, res)=>{
     const credentials = {
         roomId: req.body.roomId,
@@ -94,19 +94,22 @@ app.post("/rooms/:roomId", (req, res)=>{
     }
     const validRequest = authenticate(credentials);
 
-    console.log(req.body);
-    console.log(credentials);
-    console.log(validRequest);
 
     if(validRequest){
         res.cookie("roomId" , credentials.roomId, {"httpOnly" : true});
         res.cookie("roomPassword" , credentials.roomPassword, {"httpOnly" : true});
         res.cookie("userName", req.body.yourName, {"httpOnly": true});
+        res.cookie("userId", generateRandomString(), {"httpOnly": true});
         res.status(200).end();
     }
     else
         res.status(404).end();
 })
+
+
+
+
+
 
 
 const {Server} = require("socket.io");
@@ -122,8 +125,38 @@ ioServer.use((socket, next)=>{
 });
 
 ioServer.on("connection", (socket)=>{
-    console.log("connected");
-    console.log(socket.request.cookies);
+
+    console.log("------------user connects--------------");
+    console.log("   name: " + socket.request.cookies.userName );
+    console.log("     id: " + socket.request.cookies.userId);
+    console.log("   room: " + socket.request.cookies.roomId);
+    console.log("--------- user connects end --------------");
+
+    socket.on("disconnect", ()=>{
+
+        console.log("-------- user disconnects -----------");
+        console.log("   name: " + socket.request.cookies.userName );
+        console.log("     id: " + socket.request.cookies.userId);
+        console.log("   room: " + socket.request.cookies.roomId);
+        console.log("-------- user disconnects end-----------");
+        
+        //remove user
+        if(rooms[socket.request.cookies.roomId].users[socket.request.cookies.userId])   
+            delete rooms[socket.request.cookies.roomId].users[socket.request.cookies.userId];
+        else
+            delete joinRequests[socket.request.cookies.userId];
+
+        //change master
+        const usersInRoom = rooms[socket.request.cookies.roomId].users;
+        if(Object.keys(usersInRoom).length)
+            rooms[socket.request.cookies.roomId].masterId = Object.keys(usersInRoom)[0];
+        else
+            rooms[socket.request.cookies.roomId].masterId = "";
+
+        //send user disconnect event
+        ioServer.to(socket.request.cookies.roomId).emit("USER_DISCONNECT", socket.request.cookies.userId);
+
+    });
 
     socket.on("JOIN_REQUEST",(data)=>{
         //extracting session info
@@ -133,38 +166,43 @@ ioServer.on("connection", (socket)=>{
 
 
         //register the user in join requests
-        joinRequests[socket.id] = {
+        joinRequests[socket.request.cookies.userId] = {
+            socketId: socket.id,
             roomId: roomId,
             userName: userName,
             publicKey: publicKey
         }
 
         //check if room contains other people
-        console.log(rooms[roomId]);
+
         const clientsInRoomCount = Object.keys(rooms[roomId].users).length;
         if(clientsInRoomCount > 0){
             // get session key from master
-            const masterSocket = ioServer.sockets.sockets.get( rooms[roomId].masterId );
+            const masterSocket = ioServer.sockets.sockets.get( rooms[roomId].users[rooms[roomId].masterId].socketId );
             masterSocket.emit("SESSION_KEY_REQUEST", {
                 "userPublicKey" : publicKey,
-                "userSocketId" : socket.id
+                "userId" : socket.request.cookies.userId
             });  
         }
         else{
             // send you are master
-            rooms[roomId].masterId = socket.id;
+            rooms[roomId].masterId = socket.request.cookies.userId;
             socket.emit("NO_USERS_EXIST");
         }
         
     });
 
     socket.on("SESSION_KEY", (data)=>{
-        const recieverSocket = ioServer.sockets.sockets.get(data.recieverSocketId);
+        console.log(rooms[socket.request.cookies.roomId].users);
+        console.log(data);
+        const recieverSocket = ioServer.sockets.sockets.get( 
+            rooms[socket.request.cookies.roomId].users[data.recieverId].socketId
+        );
 
         recieverSocket.emit("SESSION_KEY", {
             encryptedKey : data.encryptedKey,
             signature : data.signature,
-            masterPublicKey : rooms[socket.request.cookies.roomId].users[socket.id].publicKey
+            masterPublicKey : rooms[socket.request.cookies.roomId].users[socket.request.cookies.userId].publicKey
         });
     });
     
@@ -172,11 +210,14 @@ ioServer.on("connection", (socket)=>{
         socket.join( socket.request.cookies.roomId );
 
         // transfer user from join requests into the room
-        rooms[ socket.request.cookies.roomId ].users[ socket.id ] = joinRequests[ socket.id ];
-        delete joinRequests[ socket.id ];
+        rooms[ socket.request.cookies.roomId ].users[ socket.request.cookies.userId ] = joinRequests[ socket.request.cookies.userId ];
+        delete joinRequests[ socket.request.cookies.userId ];
 
         //emit meta data { roomName, userName}
-        socket.emit("META_DATA", rooms[socket.request.cookies.roomId].roomName, socket.request.cookies.userName);
+        socket.emit("META_DATA", 
+            rooms[socket.request.cookies.roomId].roomName,
+            socket.request.cookies.userName,
+            socket.request.cookies.userId );
         
     });
 
@@ -189,12 +230,20 @@ ioServer.on("connection", (socket)=>{
             connectedUsers[id] = rooms[socket.request.cookies.roomId].users[id].userName;
         });
         socket.emit("CONNECTED_USERS", connectedUsers);
+
+        //broadcast user connect event
+        socket.broadcast.to(socket.request.cookies.roomId)
+            .emit("USER_CONNECT", socket.request.cookies.userId,
+                                socket.request.cookies.userName);
     });
 
     socket.on("SYNCHRONIZE_MSGS", (lastMsgId)=>{
         try{
-            const masterSocket = ioServer.sockets.sockets.get(rooms[ socket.request.cookies.roomId ].masterId);
-            masterSocket.emit("PREVIOUS_MSGS_REQUEST", lastMsgId, socket.id );
+            const roomMasterId = rooms[ socket.request.cookies.roomId ].masterId;
+            const masterSocket = ioServer.sockets.sockets.get(
+                rooms[ socket.request.cookies.roomId ].users[roomMasterId].socketId);
+                
+            masterSocket.emit("PREVIOUS_MSGS_REQUEST", lastMsgId, socket.request.cookies.userId );
         }
         catch(e){
             console.log(e);
@@ -215,24 +264,33 @@ ioServer.on("connection", (socket)=>{
 
     socket.on("PENDING_MSGS", (prendingMsgs)=>{
 
-        const roomId = socket.request.headers.cookies.roomId;
-        const userName = socket.request.headers.cookies.userName;
+        const roomId = socket.request.cookies.roomId;
+        const userName = socket.request.cookies.userName;
+        const userId = socket.request.cookies.userId;
         prendingMsgs.forEach((encryptedMsg)=>{
-            ioServer.sockets.in(roomId).except(socket.id).emit("MSG", {
+            socket.broadcast.to(roomId).emit("MSG", {
                 id: rooms[roomId].msgCount++,
-                sender: userName,
+                userId: userId,
+                userName: userName,
                 content: encryptedMsg
             });
         });
     });
 
     socket.on("NEW_MSG", (encryptedMsg, tempId)=>{
+
+        console.log(" ------------  new message --------------");
+        console.log("encryptedMsg: "+ encryptedMsg);
+        console.log("      tempId: "+ tempId);
+        console.log(" ------------  new message end-----------");
+
         let realId = rooms[socket.request.cookies.roomId].msgCount++;
         socket.emit("MSG_ACK", tempId, realId);
 
         socket.broadcast.to(socket.request.cookies.roomId).emit("MSG", {
             id:realId,
-            sender: socket.request.cookies.userName,
+            userId: socket.request.cookies.userId,
+            userName: socket.request.cookies.userName,
             content: encryptedMsg
         });
     });

@@ -9,13 +9,12 @@ export default class MessageInputComponent extends React.Component{
 
     constructor(){
         super();
-
         this.inputArea = createRef();
     }
 
     sendBtnOnClick(){
         
-        const msg = this.inputArea.current.innerHTML;
+        let msg = this.inputArea.current.value;
         
         if(msg.length == 0)
             return;
@@ -29,14 +28,23 @@ export default class MessageInputComponent extends React.Component{
         
         //store msg as pending utill acked
         this.orchestrator.emit("PENDING_MSG", msg, tempId);
+
+        //clear text area
+        this.inputArea.current.value = '';
+    }
+
+    onInputChange(e){
+    
+        e.target.style.height = 0;
+        e.target.style.height = e.target.scrollHeight + "px";
     }
 
     render(){
         return (                
             <div className="message-input">
                 <span >
-                    <div className="input-area" contentEditable="true" ref={this.inputArea}>
-                    </div>
+                    <textarea onChange={this.onInputChange.bind(this)} className="input-area" ref={this.inputArea}>
+                    </textarea>
                 </span>
                 <span>
                     <button onClick={this.sendBtnOnClick.bind(this)}><img src="/send-btn.png"/></button>
@@ -50,6 +58,6 @@ export default class MessageInputComponent extends React.Component{
         this.socket = this.context.socket;
         this.orchestrator = this.context.orchestrator;
         this.securityClient = this.context.securityClient;
-        
+
     }
 }

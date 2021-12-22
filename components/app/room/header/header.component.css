@@ -1,19 +1,19 @@
 
-header{
+.msg-page-header{
     background-color: rgb(56, 156, 245);
     text-align: center;
     padding: 1.5em;
     height: fit-content;
 }
 
-header > span{
+.msg-page-header > span{
     vertical-align: middle;
     display: inline-block;
     width: fit-content;
     height: fit-content;
 }
 
-header > .connection-status{
+.msg-page-header > .connection-status{
     width: 0.5em;
     height: 0.5em;
     margin: 0.5em;
@@ -25,7 +25,7 @@ header > .connection-status{
     background-color: red;
 }
 
-header .group-name{
+.msg-page-header .group-name{
 
     width: fit-content;
     height: fit-content;
@@ -37,7 +37,7 @@ header .group-name{
     color: white;
 }
 
-header > #show-users-btn{
+.msg-page-header > #show-users-btn{
 
     display: block;
 
@@ -58,10 +58,10 @@ header > #show-users-btn{
 
 }
 
-header > #show-users-btn:hover{
+.msg-page-header > #show-users-btn:hover{
     background-color: gray;
 }
 
-header> #show-users-btn > img{
+.msg-page-header> #show-users-btn > img{
     width: 3.5em;
 }

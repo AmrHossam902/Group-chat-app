@@ -1,19 +1,7 @@
-*{
-    box-sizing: border-box;
-    margin: 0px;
-    padding: 0px;
-    position: relative;
-}
-
-body{
-    height: fit-content;
-    position: relative;
-}
 
 .connected-list{
     position: absolute;
-    z-index: -10;
-    opacity: 0;
+
     top: 0px;
 
     width: 100%;
@@ -32,7 +20,7 @@ body{
     height: 100vh;
 }
 
-header > #show-users-btn{
+.msg-page-header > #show-users-btn{
     display: block;
 }
 
@@ -40,14 +28,13 @@ header > #show-users-btn{
 @media only screen and (min-width: 13cm) {
     .connected-list{
         width: 35%;
-        z-index: -1;
-        opacity: 1;
+
     }
     
     #messages{
         width: 65%;
     }
-    header > #show-users-btn{
+    .msg-page-header > #show-users-btn{
         display: none;
     }
 }

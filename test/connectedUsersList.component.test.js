@@ -4,9 +4,11 @@ import { act } from "react-dom/test-utils";
 import { io } from "socket.io-client";
 
 
-import globalContext from "../components/room/globalContext";
-import ConnectedUsersListComponent from "../components/room/connectedUsersList/connectedUsersList.component";
+import ConnectedUsersListComponent from "../components/app/room/connectedUsersList/connectedUsersList.component";
+import globalContext from "../components/app/room/globalContext";
 import Orchestractor from "../utilities/orchestartor";
+
+
 
 
 

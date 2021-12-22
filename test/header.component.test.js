@@ -4,8 +4,8 @@ import { act } from "react-dom/test-utils";
 import { io } from "socket.io-client";
 
 
-import globalContext from "../components/room/globalContext";
-import HeaderComponent from "../components/room/header/header.component";
+import globalContext from "../components/app/room/globalContext";
+import HeaderComponent from "../components/app/room/header/header.component";
 import Orchestrator from "../utilities/orchestartor";
 import SecurityClient from "../utilities/securityClient";
 

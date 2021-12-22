@@ -1,5 +1,5 @@
 
-import React, { createRef } from "react";
+import React, { createRef, Fragment } from "react";
 import { Link } from "react-router-dom";
 import './createRoom.component.css';
 
@@ -102,39 +102,46 @@ export default class CreateRoomComponent extends React.Component{
             display: "none"
         }
         return(
-        <div className="create-room wrapper">
-            <form id="create-room-form" onSubmit={this.createBtnHandler.bind(this)}>
-                <label>Create Room</label>
-                <input name="roomName" 
-                       type="text" 
-                       placeholder="Room Name" 
-                       onInput={()=>{ this.removeEmptyNameWarning(); }}></input>
-                <button type="submit">Create</button>
-                <div className="room-credentials" 
-                     style={hidden} 
-                     ref={this.credentialsBox}>
-                    <h3>use these data to join</h3>
-                    <span>
-                        Room Id<br/> 
-                        Room Password
-                    </span>
-                    <span>
-                        &nbsp;&nbsp;:&nbsp;&nbsp;<br/>&nbsp;&nbsp;:&nbsp;&nbsp;
-                    </span>
-                    <span>
-                        <label>ZByw34Hbdu</label><br/>
-                        <label>da34b2vdh</label>
-                    </span>
+            <Fragment>
+                <header className="home-header">
+                    <img alt="logo.png" src="./logo.png"/>
+                    <label><b>Connect</b></label>
+                </header>
+                <div className="create-room wrapper">
+                    <form id="create-room-form" onSubmit={this.createBtnHandler.bind(this)}>
+                        <label>Create Room</label>
+                        <input name="roomName" 
+                            type="text" 
+                            placeholder="Room Name" 
+                            onInput={()=>{ this.removeEmptyNameWarning(); }}></input>
+                        <button type="submit">Create</button>
+                        <div className="room-credentials" 
+                            style={hidden} 
+                            ref={this.credentialsBox}>
+                            <h3>use these data to join</h3>
+                            <span>
+                                Room Id<br/> 
+                                Room Password
+                            </span>
+                            <span>
+                                &nbsp;&nbsp;:&nbsp;&nbsp;<br/>&nbsp;&nbsp;:&nbsp;&nbsp;
+                            </span>
+                            <span>
+                                <label>ZByw34Hbdu</label><br/>
+                                <label>da34b2vdh</label>
+                            </span>
+                        </div>
+                        <div className="loader" style={hidden} ref={this.loader}>
+                            <span className="spinner">
+                            </span>
+                            <label> creating Room...</label>
+                        </div>
+                        <label className="error" style={hidden} ref={this.errorBox}>couldn't connect</label>
+                    </form>
+                    <Link to="/join-room">Join Room?</Link>
                 </div>
-                <div className="loader" style={hidden} ref={this.loader}>
-                    <span className="spinner">
-                    </span>
-                    <label> creating Room...</label>
-                </div>
-                <label className="error" style={hidden} ref={this.errorBox}>couldn't connect</label>
-            </form>
-            <Link to="/join-room">Join Room?</Link>
-        </div>
+                <footer> connect</footer>
+            </Fragment>
         );
     }
 

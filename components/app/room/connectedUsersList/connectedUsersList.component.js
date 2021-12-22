@@ -11,7 +11,11 @@ export default class ConnectedUsersListComponent extends React.Component {
     constructor(){
         super();
         this.listElement = createRef(); 
-        this.state = { usersList: {}, visibility:"visible" };  
+        this.state = { 
+            usersList: {},
+            visibility:  (window.matchMedia("(min-width: 13cm)").matches)?
+                true: false
+        }  
     }
 
 
@@ -19,7 +23,7 @@ export default class ConnectedUsersListComponent extends React.Component {
     render(){
         const userIds = Object.keys(this.state.usersList);
         return(
-            <aside className={this.state.visibility + " connected-list"} >
+            <aside className="connected-list" style={{zIndex: (this.state.visibility? -1: -10), opacity:(this.state.visibility? 1: 0)}} >
                 <h4 className="title">Connected users</h4>
                 {
                     userIds.map((id)=>{
@@ -47,15 +51,11 @@ export default class ConnectedUsersListComponent extends React.Component {
         this.orchestrator.on("USERS_BTN_CLICK", ()=>{
 
             this.setState((state)=>{
-                if(state.visibility == "visible")
-                    state.visibility = "hidden";
-                else
-                    state.visibility = "visible";
+                state.visibility = !state.visibility;
                 return state;
             });
                 
         });
-
 
         this.socket.on("CONNECTED_USERS", (connectedUsers)=>{
             this.setState((state)=>{
