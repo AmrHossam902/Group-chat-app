@@ -39,7 +39,8 @@ function createRoom(roomName){
         roomPassword : generateRandomString(),
         users: {},
         masterId: "",
-        msgCount: 0
+        msgCount: 0,
+        creationTime: Date.now()
     }
 
     return rooms[roomId];
@@ -74,8 +75,6 @@ app.get('/rooms/:roomId', function(req, res){
 
 });
 
-
-
 app.get("/*", function(req, res){
     res.sendFile(__dirname+"/dist/views/app.html", function(err){
         res.end();
@@ -104,7 +103,7 @@ app.post("/rooms/:roomId", (req, res)=>{
     }
     else
         res.status(404).end();
-})
+});
 
 
 
@@ -196,7 +195,7 @@ ioServer.on("connection", (socket)=>{
         console.log(rooms[socket.request.cookies.roomId].users);
         console.log(data);
         const recieverSocket = ioServer.sockets.sockets.get( 
-            rooms[socket.request.cookies.roomId].users[data.recieverId].socketId
+            joinRequests[data.recieverId].socketId
         );
 
         recieverSocket.emit("SESSION_KEY", {
@@ -213,7 +212,7 @@ ioServer.on("connection", (socket)=>{
         rooms[ socket.request.cookies.roomId ].users[ socket.request.cookies.userId ] = joinRequests[ socket.request.cookies.userId ];
         delete joinRequests[ socket.request.cookies.userId ];
 
-        //emit meta data { roomName, userName}
+        //emit meta data { roomName, userName, userId}
         socket.emit("META_DATA", 
             rooms[socket.request.cookies.roomId].roomName,
             socket.request.cookies.userName,
@@ -253,7 +252,8 @@ ioServer.on("connection", (socket)=>{
 
     socket.on("PREVIOUS_MSGS", (prevMsgs, userId)=>{
         try{
-            const userSocket = ioServer.sockets.sockets.get(userId);
+            const userSocketId = rooms[socket.request.cookies.roomId].users[userId].socketId;
+            const userSocket = ioServer.sockets.sockets.get( userSocketId);
             userSocket.emit("PREVIOUS_MSGS", prevMsgs);
         }
         catch(e){
@@ -295,6 +295,32 @@ ioServer.on("connection", (socket)=>{
         });
     });
 
+    socket.on("CHANGE_SESSION_KEY_END", ()=>{
+        //remove the room lock
+        ioServer.sockets.in(rooms[socket.request.cookies["roomId"]])
+            .emit("UNLOCK_MSGS");
+    });
+
 });
 
 httServer.listen(5555);
+
+
+setInterval(()=>{
+
+    for(const roomId in rooms) {
+        //change session key only if one hour has been spent on server and 
+        // there exist more than one user in the room
+        if( Date.now() - rooms[roomId].creationTime > 3600000
+            && Object.keys(rooms[roomId].users) > 1 ){
+                
+                // send message lock event to all the room
+                ioServer.sockets.in(roomId).emit("LOCK_MSGS");
+
+                // send change event to master
+                const masterSocketId = rooms[roomId].users[ rooms[roomId].masterId ].socketId;
+                ioServer.sockets.sockets.get(masterSocketId)
+                    .emit("CHANGE_SESSION_KEY");
+        }
+    }
+},20000);// every 20 seconds

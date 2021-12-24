@@ -10,6 +10,7 @@ export default class MessageInputComponent extends React.Component{
     constructor(){
         super();
         this.inputArea = createRef();
+        this.msgsAreLocked = false;
     }
 
     sendBtnOnClick(){
@@ -23,7 +24,7 @@ export default class MessageInputComponent extends React.Component{
 
         const tempId = (Math.random()*10e10).toString().substr(0,10);
         //send only if socket is open
-        if(this.socket.connected)
+        if(this.socket.connected && !this.msgsAreLocked)
             this.socket.emit("NEW_MSG", encryptedMsg, tempId);
         
         //store msg as pending utill acked
@@ -59,5 +60,12 @@ export default class MessageInputComponent extends React.Component{
         this.orchestrator = this.context.orchestrator;
         this.securityClient = this.context.securityClient;
 
+        this.socket.on("LOCK_MSGS", ()=>{
+            this.msgsAreLocked = true;
+        });
+
+        this.socket.on("UNLOCK_MSGS", ()=>{
+            this.msgsAreLocked = false;
+        });
     }
 }

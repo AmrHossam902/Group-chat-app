@@ -18,6 +18,10 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
+    "testPathIgnorePatterns": [
+      "<rootDir>/test/room.component.test.js"
+
+    ],
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/test/cssMock.js"
     }

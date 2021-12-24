@@ -69,25 +69,6 @@ test("initial rendering ", ()=>{
     expect(document.getElementsByClassName("messages-container")[0].children.length).toEqual(0)
 }); 
 
-test("setting userName inside the component", ()=>{
-    const messgesContainer = createRef();
-    act(()=>{
-        render(<globalContext.Provider value={{
-            socket: clientSocket,
-            securityClient: securityClient,
-            orchestrator: orchestartor,
-            roomName: "testRoom",
-            userName: "testUser"
-        }}>
-            <MessagesContainerComponent ref={messgesContainer}/>
-        </globalContext.Provider>, container);
-    });
-
-    orchestartor.emit("USER_NAME", "amr aly");
-
-    expect(messgesContainer.current.userName).toEqual("amr aly");
-});
-
 test("sending SYNC_MSG to an empty component",()=>{
     const messgesContainer = createRef();
 
@@ -110,7 +91,7 @@ test("sending SYNC_MSG to an empty component",()=>{
     expect(clientSocket.emmitedEvents["SYNCHRONIZE_MSGS"]).not.toBe(undefined);
 
     //expect that argument lastId =0
-    expect(clientSocket.emmitedEvents["SYNCHRONIZE_MSGS"]).toEqual([0]);
+    expect(clientSocket.emmitedEvents["SYNCHRONIZE_MSGS"]).toEqual([-1]);
     
 });
 
@@ -133,15 +114,18 @@ test("sending SYNC_MSG to non empty component",()=>{
         messgesContainer.current.setState((state)=>{
             state.msgsContainer.unshift({
                 id:3,
-                sender: "yassin",
+                userId: 23423,
+                userName: "yassin",
                 content: "hi"
             },{
                 id:2,
-                sender: "ali",
+                userId: 234234,
+                userName: "ali",
                 content: "hi"      
             },{
                 id:1,
-                sender: "yassin",
+                userId: 546456,
+                userName: "yassin",
                 content: "what do we have for today"
             });
             return state;
@@ -168,20 +152,22 @@ test("sending a Pending msg to the component", ()=>{
             securityClient: securityClient,
             orchestrator: orchestartor,
             roomName: "testRoom",
-            userName: "testUser"
+            userName: "testUser",
+            userId: 342
         }}>
             <MessagesContainerComponent ref={messgesContainer}/>
         </globalContext.Provider>, container);
     });
 
     act(()=>{
-        orchestartor.emit("PENDING_MSG", "hello from east", "4123124314" );
+        orchestartor.emit("PENDING_MSG", "hello from east", 4123124314 );
     });
 
     //data should go into pending message container
     expect(messgesContainer.current.state.pendingMsgsContainer).toEqual([{
-        id: "4123124314",
-        sender: "testUser",
+        id: 4123124314,
+        userId:342,
+        userName: "testUser",
         content: "hello from east"
     }]);
 
@@ -202,7 +188,8 @@ test("sending a Pending msg to the component while having non empty msg containe
             securityClient: securityClient,
             orchestrator: orchestartor,
             roomName: "testRoom",
-            userName: "testUser"
+            userName: "testUser",
+            userId: 342
         }}>
             <MessagesContainerComponent ref={messgesContainer}/>
         </globalContext.Provider>, container);
@@ -212,15 +199,18 @@ test("sending a Pending msg to the component while having non empty msg containe
         messgesContainer.current.setState((state)=>{
             state.msgsContainer.unshift({
                 id: 12,
-                sender: "amr",
+                userId: 421,
+                userName: "amr",
                 content: "hello"
             },{
                 id: 11,
-                sender: "ayman",
+                userId: 543,
+                userName: "ayman",
                 content: "hello lads"   
             },{
                 id: 10,
-                sender: "ali",
+                userId: 654,
+                userName: "ali",
                 content: "greetings brothers"
             });
             return state;
@@ -228,20 +218,21 @@ test("sending a Pending msg to the component while having non empty msg containe
     })
 
     act(()=>{
-        orchestartor.emit("PENDING_MSG", "hello from east", "4123124314" );
+        orchestartor.emit("PENDING_MSG", "hello from east", 4123124314 );
     });
 
     //data should go into pending message container
     expect(messgesContainer.current.state.pendingMsgsContainer).toEqual([{
-        id: "4123124314",
-        sender: "testUser",
+        id: 4123124314,
+        userId: 342,
+        userName: "testUser",
         content: "hello from east"
     }]);
 
     //nothing to go into msgsCOntainer
     expect(messgesContainer.current.state.msgsContainer.length).toEqual(3);
 
-    //expect the dom to contain 1 msg
+    //expect the dom to contain 4 msg
     expect(document.getElementsByClassName("messages-container")[0].children.length).toBe(4);
 
     //expect the pending msg to be the first one

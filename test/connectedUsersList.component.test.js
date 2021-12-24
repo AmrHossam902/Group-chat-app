@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
@@ -16,6 +19,12 @@ let clientSocket = null;
 let orchestartor = null;
 let container =  null;
 
+window.matchMedia = function(query){
+    return {
+        matches: true
+    }
+}
+
 jest.mock("socket.io-client", ()=>{
     const createFakeSocketIo =  require("./socket-clientFake");
     return createFakeSocketIo();
@@ -23,6 +32,7 @@ jest.mock("socket.io-client", ()=>{
 
 
 beforeAll((done)=>{
+    
     clientSocket = io();
     done();
 });
@@ -88,8 +98,7 @@ test("rendering list with 2 users", ()=>{
 
 
 test("suddenly a user connects", ()=>{
-    
-    
+  
     
     act(()=>{
         render(<globalContext.Provider value={
@@ -193,19 +202,19 @@ test("recieving user btn click", ()=>{
 
 
     //expect list to be visible
-    expect(usersList.current.state.visibility).toBe("visible"); 
+    expect(usersList.current.state.visibility).toBe(true); 
 
     //firing user btn click
     orchestartor.emit("USERS_BTN_CLICK");
 
     //expect list to be hidden
-    expect(usersList.current.state.visibility).toBe("hidden"); 
+    expect(usersList.current.state.visibility).toBe(false); 
 
     //firing user btn click again
     orchestartor.emit("USERS_BTN_CLICK");
 
     //expect list to be visible
-    expect(usersList.current.state.visibility).toBe("visible"); 
+    expect(usersList.current.state.visibility).toBe(true); 
 
 
 

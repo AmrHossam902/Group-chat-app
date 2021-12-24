@@ -21,8 +21,13 @@
     transform: scaleY(-1);
 }
 
+.mine {
+    direction: rtl;
+}
+
 .message > .sender-name {
     font-family: 'Courier New', Courier, monospace;
+    margin: 0px;
 }
 
 .message > .content {

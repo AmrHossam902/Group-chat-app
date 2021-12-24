@@ -143,11 +143,21 @@ class RoomComponent extends React.Component{
                 signature : sessionKeyData.signature,
                 recieverId : data.userId
             });
-        })
+        });
 
-        this.socket.on("YOU_ARE_MASTER", ()=>{
+        //emitted by server when you're master to change session key
+        this.socket.on("CHANGE_SESSION_KEY", (users)=>{
             //generate session key
+            this.securityClient.generateSessionKey();
             //loop over all hosts and emit SESSION_KEY to each enc (private + public)
+            //user {id, publicKey}
+            users.forEach(user => {
+                const encSessionKey = this.securityClient.exportSessionKey(user.publicKey);
+                this.socket.emit("NEW_SESSION_KEY", user.id);              
+            });
+
+            //send end event
+            this.socket.emit("CHANGE_SESSION_KEY_END");
         });
     }
 }

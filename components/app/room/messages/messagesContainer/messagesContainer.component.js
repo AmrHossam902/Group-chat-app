@@ -21,8 +21,8 @@ export default class MessagesContainerComponent extends React.Component{
                     this.state.pendingMsgsContainer.concat(this.state.msgsContainer)
                     .map(msg=>{
                         return (
-                            <div className={"message "+ ((this.context.userId==msg.userId)?"mine":"")} id={msg.id} key={msg.id}>
-                                <h4 className="sender-name">{msg.userName}</h4>
+                            <div className={"message"+ ((this.context.userId==msg.userId)?" mine":"")} id={msg.id} key={msg.id}>
+                                <h4 className="sender-name">{(this.context.userId==msg.userId)?"": msg.userName}</h4>
                                 <div className="content">{msg.content}</div>        
                             </div>)
                     })
@@ -55,7 +55,6 @@ export default class MessagesContainerComponent extends React.Component{
         this.socket = this.context.socket;
         this.securityClient = this.context.securityClient;
         this.orchestrator = this.context.orchestrator;
-
 
         this.orchestrator.on("SYNC_MSGS", ()=>{
             const lastMsgId = (this.state.msgsContainer.length) ? 
@@ -92,7 +91,7 @@ export default class MessagesContainerComponent extends React.Component{
             const encryptedPrevMsgs = prevMsgs.map((msg)=>{
                 return {
                     id: msg.id,
-                    userId: userId,
+                    userId: msg.userId,
                     userName: msg.userName,
                     content: this.securityClient.encryptMsg(msg.content)
                 };
@@ -109,7 +108,8 @@ export default class MessagesContainerComponent extends React.Component{
             const decryptedMsgs = previousMsgsList.map((msg)=>{
                 return {
                     id: msg.id,
-                    sender: msg.sender,
+                    userId: msg.userId,
+                    userName: msg.userName,
                     content : this.securityClient.decryptMsg(msg.content)
                 }
             });
@@ -182,6 +182,21 @@ export default class MessagesContainerComponent extends React.Component{
                 state.pendingMsgsContainer.splice(msgIndex, 1);
                 return state;
             });
+        });
+
+        this.socket.on("UNLOCK_MSGS", ()=>{
+
+            //send pending msgs if they exist
+            if(this.state.pendingMsgsContainer.length != 0){
+
+                ////encrypt pending messages
+                const encryptedMsgs = this.state.pendingMsgsContainer.map((msg)=>{
+                    return this.securityClient.encryptMsg(msg);
+                });
+
+                //send encrypted msgs over socket
+                this.socket.emit("PENDING_MSGS", encryptedMsgs);
+            }
         });
     }
 

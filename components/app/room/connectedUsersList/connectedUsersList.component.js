@@ -13,8 +13,7 @@ export default class ConnectedUsersListComponent extends React.Component {
         this.listElement = createRef(); 
         this.state = { 
             usersList: {},
-            visibility:  (window.matchMedia("(min-width: 13cm)").matches)?
-                true: false
+            visibility: false
         }  
     }
 
@@ -40,6 +39,10 @@ export default class ConnectedUsersListComponent extends React.Component {
 
 
     componentDidMount(){
+
+        this.setState((state)=>{
+            state.visibility = (window.matchMedia("(min-width: 13cm)").matches)?true: false;
+        });
 
         this.socket = this.context.socket;
         this.orchestrator = this.context.orchestrator;
