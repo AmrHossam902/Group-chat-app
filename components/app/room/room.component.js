@@ -152,12 +152,22 @@ class RoomComponent extends React.Component{
             //loop over all hosts and emit SESSION_KEY to each enc (private + public)
             //user {id, publicKey}
             users.forEach(user => {
-                const encSessionKey = this.securityClient.exportSessionKey(user.publicKey);
-                this.socket.emit("NEW_SESSION_KEY", user.id);              
+                const sessionKeyObj = this.securityClient.exportSessionKey(user.publicKey);
+                this.socket.emit("NEW_SESSION_KEY", user.id, sessionKeyObj.encryptedKey, sessionKeyObj.signature);              
             });
 
             //send end event
             this.socket.emit("CHANGE_SESSION_KEY_END");
+        });
+
+        this.socket.on("NEW_SESSION_KEY", (masterPublicKey, encSessionKey, signature)=>{
+
+            //importing session key
+            const succeeded = this.securityClient.importSessionKey(encSessionKey, signature, masterPublicKey);
+
+            if(!succeeded){
+                console.log("invalid session key");
+                this.socket.connect();            }            
         });
     }
 }
