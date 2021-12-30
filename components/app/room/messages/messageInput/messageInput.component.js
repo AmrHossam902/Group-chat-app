@@ -17,6 +17,7 @@ export default class MessageInputComponent extends React.Component{
         
         let msg = this.inputArea.current.value;
         
+        
         if(msg.length == 0)
             return;
         
@@ -24,6 +25,9 @@ export default class MessageInputComponent extends React.Component{
 
         const tempId = (Math.random()*10e10).toString().substr(0,10);
         //send only if socket is open
+        console.log("socket status :" + this.socket.connected)
+        console.log("msgsAreLocked :" + this.msgsAreLocked);
+
         if(this.socket.connected && !this.msgsAreLocked)
             this.socket.emit("NEW_MSG", encryptedMsg, tempId);
         
@@ -66,6 +70,7 @@ export default class MessageInputComponent extends React.Component{
 
         this.socket.on("UNLOCK_MSGS", ()=>{
             this.msgsAreLocked = false;
+            console.log("UNLOCK_MSGS emitted");
         });
     }
 }

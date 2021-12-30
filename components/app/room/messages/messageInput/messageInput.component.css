@@ -10,7 +10,7 @@
 
 .message-input>span{
     display: table-cell;
-    vertical-align: bottom;
+    vertical-align: middle;
 }
 
 .message-input>span:first-child{

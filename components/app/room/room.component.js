@@ -21,7 +21,7 @@ class RoomComponent extends React.Component{
 
         this.securityClient = new SecurityClient();
         this.socket = io();
-        this.isMaster = false;
+
         this.orchestrator = new Orchestrator();
 
         this.state = { 
@@ -114,8 +114,7 @@ class RoomComponent extends React.Component{
         });
 
         this.socket.on("NO_USERS_EXIST", ()=>{
-            //you 're master
-            this.isMaster = true;
+
             //generate session key
             this.securityClient.generateSessionKey();
             this.socket.emit("KEY_SYNC_COMPLETE");
@@ -156,6 +155,7 @@ class RoomComponent extends React.Component{
                 this.socket.emit("NEW_SESSION_KEY", user.id, sessionKeyObj.encryptedKey, sessionKeyObj.signature);              
             });
 
+            console.log("CHANGE_SESSION_KEY_END emitted");
             //send end event
             this.socket.emit("CHANGE_SESSION_KEY_END");
         });

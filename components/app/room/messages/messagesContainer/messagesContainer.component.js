@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import globalContext from "../../globalContext";
 
 import "./messagesContainer.component.css";
@@ -23,7 +23,18 @@ export default class MessagesContainerComponent extends React.Component{
                         return (
                             <div className={"message"+ ((this.context.userId==msg.userId)?" mine":"")} id={msg.id} key={msg.id}>
                                 <h4 className="sender-name">{(this.context.userId==msg.userId)?"": msg.userName}</h4>
-                                <div className="content">{msg.content}</div>        
+                                <div className="content">
+                                    {
+                                        msg.content.split("\n").map((line, i, arr)=>{
+                                            return(
+                                                <Fragment>
+                                                    {line}
+                                                    {(i == arr.length-1)? "": <br/>}
+                                                </Fragment>
+                                            );
+                                        })
+                                    }
+                                </div>        
                             </div>)
                     })
                 }

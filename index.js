@@ -40,7 +40,8 @@ function createRoom(roomName){
         users: {},
         masterId: "",
         msgCount: 0,
-        creationTime: Date.now()
+        sessionKeyLastChanged: Date.now(),
+        roomIsEmptySince: Date.now()
     }
 
     return rooms[roomId];
@@ -69,8 +70,8 @@ app.get('/rooms/:roomId', function(req, res){
         });
     }
     else{
-        res.status(401);
-        res.end("<h1>Invalid credentials</h1>");
+        res.status(300);
+        res.redirect("/create-room");
     }
 
 });
@@ -145,15 +146,21 @@ ioServer.on("connection", (socket)=>{
         else
             delete joinRequests[socket.request.cookies.userId];
 
+
         //change master
         const usersInRoom = rooms[socket.request.cookies.roomId].users;
         if(Object.keys(usersInRoom).length)
             rooms[socket.request.cookies.roomId].masterId = Object.keys(usersInRoom)[0];
-        else
+        else{
             rooms[socket.request.cookies.roomId].masterId = "";
+            //setting the room is empty at timestamp
+            rooms[socket.request.cookies.roomId].roomIsEmptySince = Date.now();
+        }
+            
 
         //send user disconnect event
         ioServer.to(socket.request.cookies.roomId).emit("USER_DISCONNECT", socket.request.cookies.userId);
+
 
     });
 
@@ -295,10 +302,26 @@ ioServer.on("connection", (socket)=>{
         });
     });
 
+    socket.on("NEW_SESSION_KEY", (userId, encryptedKey, signature)=>{
+        
+        //getting socket object 
+        let socketObj = ioServer.sockets.sockets.get( 
+            rooms[socket.request.cookies.roomId].users[userId].socketId );
+        
+        const masterPK = rooms[socket.request.cookies.roomId]
+            .users[rooms[socket.request.cookies.roomId].masterId].publicKey;
+
+        socketObj.emit("NEW_SESSION_KEY", masterPK, encryptedKey, signature);
+
+    });
+
     socket.on("CHANGE_SESSION_KEY_END", ()=>{
+        
+        console.log("CHANGE_SESSION_KEY_END emitted");
         //remove the room lock
-        ioServer.sockets.in(rooms[socket.request.cookies["roomId"]])
+        ioServer.to(socket.request.cookies["roomId"])
             .emit("UNLOCK_MSGS");
+            
     });
 
 });
@@ -311,16 +334,36 @@ setInterval(()=>{
     for(const roomId in rooms) {
         //change session key only if one hour has been spent on server and 
         // there exist more than one user in the room
-        if( Date.now() - rooms[roomId].creationTime > 3600000
-            && Object.keys(rooms[roomId].users) > 1 ){
+        if( Date.now() - rooms[roomId].sessionKeyLastChanged > 600000 // 10 mins 
+            && Object.keys(rooms[roomId].users).length > 1 ){
                 
+                //saving the changing moment
+                rooms[roomId].sessionKeyLastChanged = Date.now();
+
                 // send message lock event to all the room
                 ioServer.sockets.in(roomId).emit("LOCK_MSGS");
+
+                //preparing users array
+                let users = [];
+                for (const userId in rooms[roomId].users) {
+                    users.push({
+                        id: userId,
+                        publicKey: rooms[roomId].users[userId].publicKey
+                    });
+                } 
 
                 // send change event to master
                 const masterSocketId = rooms[roomId].users[ rooms[roomId].masterId ].socketId;
                 ioServer.sockets.sockets.get(masterSocketId)
-                    .emit("CHANGE_SESSION_KEY");
+                    .emit("CHANGE_SESSION_KEY", users);
+                
+                console.log("room :" + roomId + "to change its session key");
         }
+
+        //checking if the room is empty for long time, so delete it
+        if(Object.keys( rooms[roomId].users ).length == 0 
+            && Date.now() - rooms[roomId].roomIsEmptySince > 900000){ // 1/4 hour 
+                delete rooms[roomId];
+            }
     }
 },20000);// every 20 seconds

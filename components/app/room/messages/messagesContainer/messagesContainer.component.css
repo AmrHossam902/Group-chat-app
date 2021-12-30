@@ -31,6 +31,7 @@
 }
 
 .message > .content {
+    direction: ltr;
     width: fit-content;
     height: fit-content;
 

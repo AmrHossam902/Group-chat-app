@@ -2,7 +2,8 @@
 module.exports=  function createSocketIoFake(){
     return {
         io: function(){
-            return {
+
+            var socketObj = {
                 callbacks: {},
                 emmitedEvents: {},
                 emit: function(event, ...args){
@@ -13,7 +14,11 @@ module.exports=  function createSocketIoFake(){
                         this.callbacks[event] = [];
                     this.callbacks[event].push(callback);
                 },
+                connect: function(){
+                    this.sendToSocket("connect");
+                },
                 sendToSocket: function(event, ...data){   
+                    if(this.callbacks[event])
                     this.callbacks[event].forEach(fn => {
                         fn(...data);
                     });
@@ -23,6 +28,8 @@ module.exports=  function createSocketIoFake(){
                     this.emmitedEvents= {};
                 }
             }
+
+            return socketObj;
         }
     }
 };
