@@ -76,11 +76,17 @@ app.get('/rooms/:roomId', function(req, res){
 
 });
 
-app.get("/*", function(req, res){
+app.get(["/create-room", "/join-room", "/"], function(req, res){
     res.sendFile(__dirname+"/dist/views/app.html", function(err){
         res.end();
     });
 });
+
+app.get("/*", (req, res)=>{
+    res.status(404);
+    res.setHeader("Content-Type", "text/html");
+    res.end("<h1> resource not found </h1>");
+})
 
 app.post("/rooms/new", (req, res)=>{
     const roomObject = createRoom(req.body["roomName"]);
