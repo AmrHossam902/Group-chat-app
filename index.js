@@ -4,7 +4,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const app = express();
-const httServer= require("http").createServer(app);
+const httServer= require("https").createServer(app);
 
 let rooms = {};
 const joinRequests = {};
