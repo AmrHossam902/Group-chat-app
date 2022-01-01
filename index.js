@@ -4,7 +4,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const app = express();
-const httServer= require("https").createServer(app);
+const httServer= require("http").createServer(app);
 
 let rooms = {};
 const joinRequests = {};
@@ -332,7 +332,7 @@ ioServer.on("connection", (socket)=>{
 
 });
 
-httServer.listen(443);
+httServer.listen(process.env.PORT || 5555);
 
 
 setInterval(()=>{
